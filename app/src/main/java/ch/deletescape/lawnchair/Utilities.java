@@ -170,18 +170,6 @@ public final class Utilities {
             CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
             TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
-    // Blacklisted APKs which will be hidden, these include simple regex formatting, without
-    // full regex formatting (e.g. com.android. will block everything that starts with com.android.)
-    // Taken from: https://github.com/substratum/substratum/blob/dev/app/src/main/java/projekt/substratum/common/Systems.java
-    private static final String[] BLACKLISTED_APPLICATIONS = {
-        "com.android.vending.billing.InAppBillingService.",
-        "uret.jasi2169.",
-        "com.dimonvideo.luckypatcher",
-        "com.chelpus.",
-        "com.forpda.lp",
-        "zone.jasi2169."
-    };
-
     public static boolean isPropertyEnabled(String propertyName) {
         return Log.isLoggable(propertyName, Log.VERBOSE);
     }
@@ -1042,20 +1030,6 @@ public final class Utilities {
     public static boolean isAnimatedClock(Context context, ComponentName componentName) {
         return Utilities.getPrefs(context).getAnimatedClockIcon() &&
                 Utilities.isComponentClock(componentName, !Utilities.getPrefs(context).getAnimatedClockIconAlternativeClockApps());
-    }
-
-    public static boolean isBlacklistedAppInstalled(Context context) {
-        final PackageManager pm = context.getPackageManager();
-        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-        for (ApplicationInfo packageInfo : packages) {
-            for (String packageName : BLACKLISTED_APPLICATIONS) {
-                if (packageInfo.packageName.startsWith(packageName)) {
-                    return true;
-                }
-            }
-        }
-
-        return BLACKLISTED_APPLICATIONS.length == 0;
     }
 
     public static void showLawnfeedPopup(final Context context) {
