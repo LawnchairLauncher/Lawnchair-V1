@@ -127,7 +127,7 @@
         <provider
             android:name=".LauncherProvider"
             android:authorities="${applicationId}.settings"
-            android:exported="true"
+            android:exported="false"
             android:readPermission="ch.deletescape.lawnchair.permission.READ_SETTINGS"
             android:writePermission="ch.deletescape.lawnchair.permission.WRITE_SETTINGS" />
 
