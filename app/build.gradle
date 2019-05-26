@@ -7,6 +7,10 @@ if (localPropsFile.exists()) {
     localProps.load(localPropsFile.newDataInputStream())
 }
 
+def isTravis = String.valueOf(localProps.getProperty('travis.isTravis')) ?: System.getenv("TRAVIS") ?: "false"
+def taggedBuild = String.valueOf(localProps.getProperty('travis.isTagged')) ?: System.getenv("TRAVIS_TAG") ? "true" : "false"
+def buildNr = localProps.getProperty('travis.buildNr') ?: System.getenv("TRAVIS_BUILD_NUMBER") ?: "0"
+
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
@@ -14,9 +18,9 @@ android {
     signingConfigs {
         travis {
             storeFile file("debug.jks")
-            storePassword System.getenv("STORE_PASSWORD")
+            storePassword localProps.getProperty('store.password') ?: System.getenv("STORE_PASSWORD")
             keyAlias "Lawnchair"
-            keyPassword System.getenv("KEY_PASSWORD")
+            keyPassword localProps.getProperty('key.password') ?: System.getenv("KEY_PASSWORD")
         }
     }
 
@@ -25,18 +29,19 @@ android {
         targetSdkVersion 27
         applicationId "ch.deletescape.lawnchair"
 
-        buildConfigField "boolean", "TRAVIS", System.getenv("TRAVIS") ?: "false"
-        buildConfigField "boolean", "TAGGED_BUILD", System.getenv("TRAVIS_TAG") ? "true" : "false"
-        buildConfigField "int", "TRAVIS_BUILD_NUMBER", System.getenv("TRAVIS_BUILD_NUMBER") ?: "0"
+        buildConfigField "boolean", "TRAVIS", isTravis
+        buildConfigField "boolean", "TAGGED_BUILD", taggedBuild
+        buildConfigField "int", "TRAVIS_BUILD_NUMBER", buildNr
         buildConfigField "boolean", "ENABLE_LAWNFEED", "false"
 
         ext.awarenessApiKey = localProps.getProperty('awarenessApiKey') ?: System.getenv("AWARENESS_API_KEY")
         buildConfigField "boolean", "AWARENESS_API_ENABLED", ext.awarenessApiKey ? "true" : "false"
         manifestPlaceholders = [awarenessApiKey: ext.awarenessApiKey ?: "null"]
 
-        if (System.getenv("TRAVIS") == "true") {
-            versionCode = Integer.valueOf(System.getenv("TRAVIS_BUILD_NUMBER"))
-            versionName = System.getenv("MAJOR_MINOR") + (System.getenv("DRONE") ? "-" : ".") + System.getenv("TRAVIS_BUILD_NUMBER")
+        if (isTravis == "true") {
+            versionCode = Integer.valueOf(buildNr)
+            ext.majorMinor = localProps.getProperty('version.majorminor') ?: System.getenv("MAJOR_MINOR")
+            versionName =  ext.majorMinor + (System.getenv("DRONE") ? "-" : ".") + buildNr
         } else {
             versionCode 1
             versionName "dev"
@@ -45,7 +50,7 @@ android {
 
     buildTypes {
         debug {
-            if (System.getenv("TRAVIS") == "true") {
+            if (isTravis == "true") {
                 minifyEnabled true
                 shrinkResources true
                 if (System.getenv("DRONE") == "true") {
