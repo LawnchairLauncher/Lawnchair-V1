@@ -12,6 +12,7 @@ interface IPreferenceProvider {
     // -------------------
 
     var restoreSuccess: Boolean
+    var configVersion: Int
 
     // -------------------
     // 1) App Theme

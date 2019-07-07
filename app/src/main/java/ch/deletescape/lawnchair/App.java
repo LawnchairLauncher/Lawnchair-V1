@@ -12,5 +12,7 @@ public class App extends Application {
         super.onCreate();
 
         PreferenceProvider.INSTANCE.init(new PreferenceImpl(this));
+         // Ensure we have a version value written so we can easily migrate in v2
+        PreferenceProvider.INSTANCE.getPreferences(this).setConfigVersion(100);
     }
 }
